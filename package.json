@@ -1,0 +1,29 @@
+{
+  "name": "@cebecifaruk/rpc",
+  "version": "1.0.0",
+  "description": "Javascript JSON RPC server",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cebecifaruk/rpc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cebecifaruk/rpc/issues"
+  },
+  "homepage": "https://github.com/cebecifaruk/rpc#readme",
+  "keywords": [
+    "http",
+    "web",
+    "websocket",
+    "api"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/test.js"
+  },
+  "author": "Faruk CEBECI",
+  "license": "ISC",
+  "dependencies": {
+    "uuid": "^8.3.2",
+    "ws": "^8.3.0"
+  }
+}
