@@ -1,5 +1,5 @@
 const http = require("http");
-const ws = require("ws");
+const WebSocket = require("ws");
 const assert = require("assert");
 const crypto = require("crypto");
 const uuid = require("uuid");
@@ -153,8 +153,22 @@ function createApi() {
 
 
         if (req.method == "OPTIONS") return res.writeHead(200, headers).end();
-
-        if (req.method !== "POST") return sendJSON({ id: null, error: "Invalid HTTP method", result: null });
+        if (req.method !== "POST") {
+            if (!("http" in api.methods)) return sendJSON({ id: null, error: "Default Http Handler function not found!", result: null });
+            try {
+                const result = await api({
+                    headers: req.headers,
+                    method: req.method,
+                    url: req.url,
+                    httpVersion: req.httpVersion,
+                    HttpResponse
+                }, "http", req.body);
+                if (!(result instanceof HttpResponse)) throw "Invalid Http Response from the function!";
+                return res.writeHead(result.status, result.headers).end(result.body);
+            } catch (e) {
+                return sendJSON({ id: null, error: String(e), result: null });
+            }
+        }
 
         var id = null;
 
@@ -259,7 +273,7 @@ function createApi() {
     api.listen = (port, ip = '0.0.0.0', websocket = true) => {
         const httpServer = http.createServer(api.httpHandler);
         httpServer.listen(port, ip);
-        if (websocket) new ws.Server({ server: httpServer, autoAcceptConnections: true })
+        if (websocket) new WebSocket.Server({ server: httpServer, autoAcceptConnections: true })
             .on("connection", api.wsHandler);
     }
 
