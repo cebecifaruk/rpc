@@ -159,8 +159,11 @@ function createApi() {
         var id = null;
 
         try {
-
-            const body = JSON.parse(await getHttpBody(req));
+            const body = req.url.startsWith("/rpc/") ? {
+                id: 0,
+                method: req.url.slice(5),
+                params: [JSON.parse(await getHttpBody(req))]
+            } : JSON.parse(await getHttpBody(req));
 
             id = "id" in body ? body.id : undefined;
 
