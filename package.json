@@ -1,6 +1,6 @@
 {
-  "name": "@cebecifaruk/rpc",
-  "version": "1.0.0",
+  "name": "rpc",
+  "version": "1.0.1",
   "description": "Javascript JSON RPC server",
   "repository": {
     "type": "git",
