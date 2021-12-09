@@ -115,7 +115,7 @@ function createApi() {
             delete session.callIds[id];
         }
 
-        if (api.methods?.onCreate) await api(session.context, "onCreate");
+        if ("onCreate" in api.methods) await api(session.context, "onCreate");
         api.sessions[session.id] = session;
 
         return session;
@@ -162,7 +162,7 @@ function createApi() {
 
             const body = JSON.parse(await getHttpBody(req));
 
-            id = body?.id;
+            id = "id" in body ? body.id : undefined;
 
             assert(isRpc(body), "Not a valid JSON-RPC");
 
@@ -183,14 +183,14 @@ function createApi() {
 
             await s.close();
 
-            if (response?.result instanceof HttpResponse)
+            if ("result" in response && response.result instanceof HttpResponse)
                 return res
                     .writeHead(response.result.status, { ...headers, ...response.result.headers })
                     .end(response.result.body);
 
 
             return res
-                .writeHead(response?.error === null ? 200 : 502, headers)
+                .writeHead(("error" in response && response.error === null) ? 200 : 502, headers)
                 .end(JSON.stringify(response));
         } catch (e) {
             return res
