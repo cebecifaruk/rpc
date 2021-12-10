@@ -277,6 +277,69 @@ function createApi() {
             .on("connection", api.wsHandler);
     }
 
+    api.connect = async (url, token) => {
+        var ws = null;
+
+        function call(method, ...params) {
+            if (!ws instanceof WebSocket) throw "Not Connected to the server.";
+            if (method != "loginWithSession" && !ws.apiReady) throw "Not ready";
+            const id = generateId();
+            const req = { id, method, params };
+            ws.send(JSON.stringify(req));
+            return new Promise((res, rej) => {
+                ws.handlers[id] = [res, rej];
+            });
+        }
+
+        const connect = () => new Promise((res, rej) => {
+            ws = new WebSocket(url);
+            ws.apiReady = true;
+            ws.handlers = {};
+            ready = false;
+
+            ws.on("open", () => {
+                call("loginWithSession", token)
+                    .then((result) => {
+                        ws.apiReady = true;
+                        res(null);
+                        console.log(result);
+                    })
+                    .catch((e) => {
+                        console.log(e)
+                    });
+            });
+
+            ws.on("close", () => {
+                Object.values(ws.handlers).forEach(([res, rej]) => rej(null));
+                connect();
+            });
+
+            ws.on("message", async (msg) => {
+                try {
+                    const parsed = JSON.parse(String(msg));
+                    if (isResponse(parsed)) {
+                        const [res, rej] = ws.handlers[parsed.id];
+                        if (parsed.error === null) res(parsed.result);
+                        else rej(parsed.error);
+                    } else if (isRpc(parsed)) {
+                        try {
+                            const result = await api({}, parsed.method, ...parsed.params);
+                            ws.send(JSON.stringify({ id: parsed.id, result, error: null }));
+                        } catch (e) {
+                            ws.send({ id: parsed.id, result, error: String(e) });
+                        }
+                    }
+                } catch (e) {
+
+                }
+            });
+        });
+
+        await connect();
+
+        return call;
+    }
+
     return api;
 }
 
