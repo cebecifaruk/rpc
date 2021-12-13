@@ -285,7 +285,7 @@ function createApi() {
             if (method != "loginWithSession" && !ws.apiReady) throw "Not ready";
             const id = generateId();
             const req = { id, method, params };
-            ws.send(JSON.stringify(req));
+            ws.send(JSON.stringify(req) + "\r\n");
             return new Promise((res, rej) => {
                 ws.handlers[id] = [res, rej];
             });
@@ -325,13 +325,13 @@ function createApi() {
                     } else if (isRpc(parsed)) {
                         try {
                             const result = await api({}, parsed.method, ...parsed.params);
-                            ws.send(JSON.stringify({ id: parsed.id, result: result === undefined ? null : result, error: null }) + "\n");
+                            ws.send(JSON.stringify({ id: parsed.id, result: result === undefined ? null : result, error: null }) + "\r\n");
                         } catch (e) {
-                            ws.send(JSON.stringify({ id: parsed.id, result, error: String(e) }) + "\n");
+                            ws.send(JSON.stringify({ id: parsed.id, result: null, error: String(e) }) + "\r\n");
                         }
                     }
                 } catch (e) {
-
+                    console.log(e);
                 }
             });
         });
