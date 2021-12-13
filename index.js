@@ -312,8 +312,12 @@ function createApi() {
                     });
             });
 
-            ws.on("close", () => connect());
-            ws.on("error", () => connect());
+            ws.on("close", () => {
+                setTimeout(connect, 5000);
+            });
+            ws.on("error", () => {
+                setTimeout(connect, 5000);
+            });
 
             ws.on("message", async (msg) => {
                 try {
