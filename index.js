@@ -325,9 +325,9 @@ function createApi() {
                     } else if (isRpc(parsed)) {
                         try {
                             const result = await api({}, parsed.method, ...parsed.params);
-                            ws.send(JSON.stringify({ id: parsed.id, result, error: null }));
+                            ws.send(JSON.stringify({ id: parsed.id, result, error: null }) + "\n");
                         } catch (e) {
-                            ws.send({ id: parsed.id, result, error: String(e) });
+                            ws.send(JSON.stringify({ id: parsed.id, result, error: String(e) }) + "\n");
                         }
                     }
                 } catch (e) {
