@@ -292,6 +292,9 @@ function createApi() {
         }
 
         const connect = () => new Promise((res, rej) => {
+            if (ws instanceof WebSocket && "handlers" in ws)
+                Object.values(ws.handlers).forEach(([res, rej]) => rej(null));
+
             ws = new WebSocket(url);
             ws.apiReady = true;
             ws.handlers = {};
@@ -309,10 +312,8 @@ function createApi() {
                     });
             });
 
-            ws.on("close", () => {
-                Object.values(ws.handlers).forEach(([res, rej]) => rej(null));
-                connect();
-            });
+            ws.on("close", () => connect());
+            ws.on("error", () => connect());
 
             ws.on("message", async (msg) => {
                 try {
