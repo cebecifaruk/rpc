@@ -315,6 +315,7 @@ function createApi() {
             ws.on("close", () => {
                 setTimeout(connect, 5000);
             });
+
             ws.on("error", () => {
                 setTimeout(connect, 5000);
             });
@@ -341,6 +342,10 @@ function createApi() {
         });
 
         await connect();
+
+        setInterval(() => {
+            if (ws !== null && ws.readyState > 2) connect();
+        }, 30000);
 
         return call;
     }
