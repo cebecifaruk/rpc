@@ -313,11 +313,12 @@ function createApi() {
             });
 
             ws.on("close", () => {
-                setTimeout(connect, 5000);
+                setTimeout(connect, 90000);
             });
 
-            ws.on("error", () => {
-                setTimeout(connect, 5000);
+            ws.on("error", (e) => {
+                console.log(e);
+                ws.close();
             });
 
             ws.on("message", async (msg) => {
