@@ -297,6 +297,7 @@ function createApi() {
 
             ws = new WebSocket(url);
             ws.apiReady = true;
+            ws.restarting = false;
             ws.handlers = {};
             ready = false;
 
@@ -313,12 +314,18 @@ function createApi() {
             });
 
             ws.on("close", () => {
-                setTimeout(connect, 90000);
+                if (!ws.restarting) {
+                    ws.restarting = true;
+                    setTimeout(connect, 90000);
+                }
             });
 
             ws.on("error", (e) => {
                 console.log(e);
-                ws.close();
+                if (!ws.restarting) {
+                    ws.restarting = true;
+                    setTimeout(connect, 90000);
+                }
             });
 
             ws.on("message", async (msg) => {
