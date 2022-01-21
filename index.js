@@ -347,6 +347,15 @@ function createApi() {
                     console.log(e);
                 }
             });
+
+            var timeout = null;
+            ws.on("pong", () => clearTimeout(timeout));
+            setInterval(() => {
+                if (ws === null) return;
+                if (ws.readyState !== 1) return;
+                timeout = setTimeout(() => connect(), 10000);
+                ws.ping();
+            }, 30000);
         });
 
         await connect();
