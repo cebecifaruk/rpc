@@ -179,7 +179,7 @@ function createApi() {
                 params: [JSON.parse(await getHttpBody(req))]
             } : JSON.parse(await getHttpBody(req));
 
-            id = "id" in body ? body.id : undefined;
+            id = body?.id;
 
             assert(isRpc(body), "Not a valid JSON-RPC");
 
